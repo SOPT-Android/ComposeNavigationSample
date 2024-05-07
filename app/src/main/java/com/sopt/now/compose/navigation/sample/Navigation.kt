@@ -102,10 +102,18 @@ fun PlayGroundScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = {
             navController.navigate(Screen.Home.route) {
-                popUpTo(Screen.Home.route)
+                popUpTo(Screen.Home.route) {
+                    inclusive = true
+                }
             }
         }) {
             Text(text = "Go to Home")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = {
+            navController.navigate(Screen.Detail.route)
+        }) {
+            Text(text = "Go to Detail")
         }
     }
 }
