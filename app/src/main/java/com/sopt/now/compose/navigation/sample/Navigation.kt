@@ -7,21 +7,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 
 @Composable
 fun Navigation() {
@@ -31,27 +24,13 @@ fun Navigation() {
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) {
-            HomeScreen(
-                onSubmitUserName = { userName ->
-                    navController.navigate(Screen.Detail.withArgs(userName))
-                }
-            )
+            HomeScreen(navController)
         }
-        composable(
-            route = Screen.Detail.route + "/{userName}",
-            arguments = listOf(
-                navArgument("userName") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }
-            )
-        ) { entry ->
-            val userName = entry.arguments?.getString("userName")
-            DetailScreen(
-                navController = navController,
-                name = userName.orEmpty()
-            )
+        composable(Screen.Detail.route) {
+            DetailScreen(navController)
+        }
+        composable(Screen.PlayGround.route) {
+            PlayGroundScreen(navController)
         }
     }
 }
@@ -59,7 +38,7 @@ fun Navigation() {
 
 @Composable
 fun HomeScreen(
-    onSubmitUserName: (String) -> Unit
+    navController: NavHostController
 ) {
     Column(
         modifier = Modifier
@@ -67,25 +46,25 @@ fun HomeScreen(
             .padding(horizontal = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        var userName by remember { mutableStateOf("") }
-        Text(text = "Input User Name")
+        Text(text = "Home")
         Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = userName,
-            onValueChange = {
-                userName = it
-            })
+        Button(onClick = {
+            navController.navigate(Screen.Detail.route)
+        }) {
+            Text(text = "Go to Detail")
+        }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { onSubmitUserName(userName) }) {
-            Text(text = "Submit")
+        Button(onClick = {
+            navController.navigate(Screen.PlayGround.route)
+        }) {
+            Text(text = "Go to PlayGround")
         }
     }
 }
 
 @Composable
 fun DetailScreen(
-    navController: NavHostController,
-    name: String
+    navController: NavHostController
 ) {
     Column(
         modifier = Modifier
@@ -95,10 +74,36 @@ fun DetailScreen(
     ) {
         Text(text = "DETAIL")
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "User Name: $name")
+        Button(onClick = {
+            navController.navigate(Screen.Home.route)
+        }) {
+            Text(text = "Go to Home")
+        }
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = {
-            navController.navigate("home")
+            navController.navigate(Screen.PlayGround.route)
+        }) {
+            Text(text = "Go to PlayGround")
+        }
+    }
+}
+
+@Composable
+fun PlayGroundScreen(
+    navController: NavHostController
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "PlayGround")
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Home.route)
+            }
         }) {
             Text(text = "Go to Home")
         }
