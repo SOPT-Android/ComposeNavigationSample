@@ -33,7 +33,7 @@ fun Navigation() {
         composable(Screen.Home.route) {
             HomeScreen(
                 onSubmitUserName = { userName ->
-                    navController.navigate(Screen.Detail.route + "/$userName")
+                    navController.navigate(Screen.Detail.withArgs(userName))
                 }
             )
         }
