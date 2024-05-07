@@ -11,39 +11,75 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = MainScreen.Home.route
     ) {
-        composable(Screen.Home.route) {
-            HomeScreen(
-                navigateToDetail = { navController.navigate(Screen.Detail.route) },
-                navigateToPlayGround = { navController.navigate(Screen.PlayGround.route) }
-            )
-        }
-        composable(Screen.Detail.route) {
-            DetailScreen(
-                navigateToHome = { navController.navigate(Screen.Home.route) },
-                navigateToPlayGround = { navController.navigate(Screen.PlayGround.route) }
-            )
-        }
-        composable(Screen.PlayGround.route) {
-            PlayGroundScreen(
-                navigateToHome = { navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Home.route) {
-                        inclusive = true
+        navigation(
+            startDestination = AuthScreen.Login.route,
+            route = AuthScreen.Auth.route
+        ) {
+            composable(AuthScreen.Login.route) {
+                LoginScreen(
+                    loginAction = {
+                        navController.navigate(MainScreen.Home.route) {
+                            popUpTo(AuthScreen.Auth.route) {
+                                inclusive = true
+                            }
+                        }
                     }
-                }},
-                navigateToDetail = { navController.navigate(Screen.Detail.route) }
+                )
+            }
+        }
+        composable(MainScreen.Home.route) {
+            HomeScreen(
+                navigateToDetail = { navController.navigate(MainScreen.Detail.route) },
+                navigateToPlayGround = { navController.navigate(MainScreen.PlayGround.route) }
             )
+        }
+        composable(MainScreen.Detail.route) {
+            DetailScreen(
+                navigateToHome = { navController.navigate(MainScreen.Home.route) },
+                navigateToPlayGround = { navController.navigate(MainScreen.PlayGround.route) }
+            )
+        }
+        composable(MainScreen.PlayGround.route) {
+            PlayGroundScreen(
+                navigateToHome = {
+                    navController.navigate(MainScreen.Home.route) {
+                        popUpTo(MainScreen.Home.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+                navigateToDetail = { navController.navigate(MainScreen.Detail.route) }
+            )
+        }
+    }
+}
+
+@Composable
+fun LoginScreen(
+    loginAction: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "Home")
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = loginAction) {
+            Text(text = "Login")
         }
     }
 }
