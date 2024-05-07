@@ -24,21 +24,34 @@ fun Navigation() {
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(
+                navigateToDetail = { navController.navigate(Screen.Detail.route) },
+                navigateToPlayGround = { navController.navigate(Screen.PlayGround.route) }
+            )
         }
         composable(Screen.Detail.route) {
-            DetailScreen(navController)
+            DetailScreen(
+                navigateToHome = { navController.navigate(Screen.Home.route) },
+                navigateToPlayGround = { navController.navigate(Screen.PlayGround.route) }
+            )
         }
         composable(Screen.PlayGround.route) {
-            PlayGroundScreen(navController)
+            PlayGroundScreen(
+                navigateToHome = { navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Home.route) {
+                        inclusive = true
+                    }
+                }},
+                navigateToDetail = { navController.navigate(Screen.Detail.route) }
+            )
         }
     }
 }
 
-
 @Composable
 fun HomeScreen(
-    navController: NavHostController
+    navigateToDetail: () -> Unit,
+    navigateToPlayGround: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -48,15 +61,11 @@ fun HomeScreen(
     ) {
         Text(text = "Home")
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            navController.navigate(Screen.Detail.route)
-        }) {
+        Button(onClick = navigateToDetail) {
             Text(text = "Go to Detail")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            navController.navigate(Screen.PlayGround.route)
-        }) {
+        Button(onClick = navigateToPlayGround) {
             Text(text = "Go to PlayGround")
         }
     }
@@ -64,7 +73,8 @@ fun HomeScreen(
 
 @Composable
 fun DetailScreen(
-    navController: NavHostController
+    navigateToHome: () -> Unit,
+    navigateToPlayGround: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -74,15 +84,11 @@ fun DetailScreen(
     ) {
         Text(text = "DETAIL")
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            navController.navigate(Screen.Home.route)
-        }) {
+        Button(onClick = navigateToHome) {
             Text(text = "Go to Home")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            navController.navigate(Screen.PlayGround.route)
-        }) {
+        Button(onClick = navigateToPlayGround) {
             Text(text = "Go to PlayGround")
         }
     }
@@ -90,7 +96,8 @@ fun DetailScreen(
 
 @Composable
 fun PlayGroundScreen(
-    navController: NavHostController
+    navigateToHome: () -> Unit,
+    navigateToDetail: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -100,19 +107,11 @@ fun PlayGroundScreen(
     ) {
         Text(text = "PlayGround")
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            navController.navigate(Screen.Home.route) {
-                popUpTo(Screen.Home.route) {
-                    inclusive = true
-                }
-            }
-        }) {
+        Button(onClick = navigateToHome) {
             Text(text = "Go to Home")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            navController.navigate(Screen.Detail.route)
-        }) {
+        Button(onClick = navigateToDetail) {
             Text(text = "Go to Detail")
         }
     }
