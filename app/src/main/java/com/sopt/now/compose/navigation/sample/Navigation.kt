@@ -7,14 +7,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
+import androidx.navigation.toRoute
+import kotlin.reflect.typeOf
 
 @Composable
 fun Navigation(
@@ -24,82 +30,41 @@ fun Navigation(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = AuthScreen.Auth.route
+        startDestination = Screen.Home
     ) {
-        navigation(
-            startDestination = AuthScreen.Login.route,
-            route = AuthScreen.Auth.route
-        ) {
-            composable(AuthScreen.Login.route) {
-                LoginScreen(
-                    loginAction = {
-                        navController.navigate(MainScreen.Home.route) {
-                            popUpTo(AuthScreen.Auth.route) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                )
-            }
+        composable<Screen.Home> {
+            HomeScreen(onNavigateToProfile = { id ->
+                navController.navigate(Screen.Profile(id))
+            })
         }
-        navigation(
-            startDestination = MainScreen.Home.route,
-            route = MainScreen.Main.route
-        ) {
-            composable(MainScreen.Home.route) {
-                HomeScreen(
-                    navigateToDetail = { navController.navigate(DetailScreen.Detail.route) },
-                    navigateToPlayGround = { navController.navigate(MainScreen.PlayGround.route) }
-                )
-            }
-            composable(MainScreen.MyPage.route) {
-                DetailScreen(
-                    navigateToHome = { navController.navigate(MainScreen.Home.route) },
-                    navigateToPlayGround = { navController.navigate(MainScreen.PlayGround.route) }
-                )
-            }
-            composable(MainScreen.PlayGround.route) {
-                PlayGroundScreen(
-                    navigateToHome = {
-                        navController.navigate(MainScreen.Home.route) {
-                            popUpTo(MainScreen.Home.route) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    navigateToDetail = { navController.navigate(DetailScreen.Detail.route) }
-                )
-            }
+        composable<Screen.Profile> { backStackEntry ->
+            val profile: Screen.Profile = backStackEntry.toRoute()
+            ProfileScreen(
+                profile, moveToSearch = {
+                    navController.navigate(
+                        Screen.Search(
+                            Screen.SearchParameters(
+                                "query",
+                                emptyList()
+                            )
+                        )
+                    )
+                }
+            )
         }
 
-        composable(DetailScreen.Detail.route) {
-            DetailScreen()
-        }
-    }
-}
-
-@Composable
-fun LoginScreen(
-    loginAction: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 30.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(text = "Login")
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = loginAction) {
-            Text(text = "Login")
+        composable<Screen.Search>(
+            typeMap = mapOf(typeOf<Screen.SearchParameters>() to searchParametersType)
+        ) { backStackEntry ->
+            val searchParameters = backStackEntry.toRoute<Screen.Search>().parameters
+            SearchScreen(searchParameters)
         }
     }
 }
 
 @Composable
 fun HomeScreen(
-    navigateToDetail: () -> Unit,
-    navigateToPlayGround: () -> Unit
+    onNavigateToProfile: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -107,22 +72,23 @@ fun HomeScreen(
             .padding(horizontal = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "Home")
+        var id by remember { mutableStateOf("") }
+        Text(text = "HOME")
+        TextField(
+            value = id,
+            onValueChange = { id = it }
+        )
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = navigateToDetail) {
-            Text(text = "Go to Detail")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = navigateToPlayGround) {
-            Text(text = "Go to PlayGround")
+        Button(onClick = { onNavigateToProfile(id) }) {
+            Text(text = "Go to Profile")
         }
     }
 }
 
 @Composable
-fun DetailScreen(
-    navigateToHome: () -> Unit,
-    navigateToPlayGround: () -> Unit
+fun ProfileScreen(
+    profile: Screen.Profile,
+    moveToSearch: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -130,49 +96,25 @@ fun DetailScreen(
             .padding(horizontal = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "DETAIL")
+        Text(text = "Profile")
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = navigateToHome) {
-            Text(text = "Go to Home")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = navigateToPlayGround) {
-            Text(text = "Go to PlayGround")
+        Text(text = "id = ${profile.id}")
+        Button(onClick = { moveToSearch() }) {
+            Text(text = "Go to Search")
         }
     }
 }
 
 @Composable
-fun PlayGroundScreen(
-    navigateToHome: () -> Unit,
-    navigateToDetail: () -> Unit
-) {
+fun SearchScreen(searchParameters: Screen.SearchParameters) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "PlayGround")
+        Text(text = "Search")
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = navigateToHome) {
-            Text(text = "Go to Home")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = navigateToDetail) {
-            Text(text = "Go to Detail")
-        }
-    }
-}
-
-@Composable
-fun DetailScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 30.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(text = "DetailScreen")
+        Text(text = "query = ${searchParameters.searchQuery}")
     }
 }
