@@ -3,6 +3,11 @@ package com.sopt.now.compose.navigation.sample
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -19,6 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sopt.now.compose.navigation.sample.ui.theme.ComposeNavigationSampleTheme
 
@@ -35,28 +42,38 @@ class MainActivity : ComponentActivity() {
                     var selectedItemIndex by remember {
                         mutableIntStateOf(0)
                     }
+                    val currentDestination: String? =
+                        navController.currentBackStackEntryAsState().value?.destination?.route
+
                     Scaffold(
                         bottomBar = {
-                            NavigationBar {
-                                listOf(
-                                    MainScreen.Home,
-                                    MainScreen.Detail,
-                                    MainScreen.PlayGround
-                                ).map(MainScreen::toNavigationItem).forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = selectedItemIndex == index,
-                                        onClick = {
-                                            selectedItemIndex = index
-                                            navController.navigate(item.screen.route)
-                                        },
-                                        icon = {
-                                            Icon(
-                                                imageVector = item.icon,
-                                                contentDescription = item.label
+                            AnimatedVisibility(
+                                visible = currentDestination in MainScreen,
+                                enter = fadeIn() + slideIn { IntOffset(0, it.height) },
+                                exit = fadeOut() + slideOut { IntOffset(0, it.height) }
+                            ) {
+                                NavigationBar {
+                                    listOf(
+                                        MainScreen.Home,
+                                        MainScreen.MyPage,
+                                        MainScreen.PlayGround
+                                    ).map(MainScreen::toNavigationItem)
+                                        .forEachIndexed { index, item ->
+                                            NavigationBarItem(
+                                                selected = selectedItemIndex == index,
+                                                onClick = {
+                                                    selectedItemIndex = index
+                                                    navController.navigate(item.screen.route)
+                                                },
+                                                icon = {
+                                                    Icon(
+                                                        imageVector = item.icon,
+                                                        contentDescription = item.label
+                                                    )
+                                                },
+                                                label = { Text(text = item.label) }
                                             )
-                                        },
-                                        label = { Text(text = item.label) }
-                                    )
+                                        }
                                 }
                             }
                         }

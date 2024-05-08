@@ -22,8 +22,9 @@ interface Screen {
 sealed class MainScreen(
     override val route: String,
 ) : Screen {
+    data object Main : MainScreen("main")
     data object Home : MainScreen("home")
-    data object Detail : MainScreen("detail")
+    data object MyPage : MainScreen("mypage")
     data object PlayGround : MainScreen("playground")
 
     data class BottomNavigationItem(
@@ -35,8 +36,17 @@ sealed class MainScreen(
     fun toNavigationItem(): BottomNavigationItem {
         return when (this) {
             Home -> BottomNavigationItem(Home, Icons.Filled.Home, "Home")
-            Detail -> BottomNavigationItem(Detail, Icons.Filled.Info, "Detail")
+            MyPage -> BottomNavigationItem(MyPage, Icons.Filled.Info, "MyPage")
             PlayGround -> BottomNavigationItem(PlayGround, Icons.Filled.Place, "PlayGround")
+            else -> BottomNavigationItem(Home, Icons.Filled.Home, "Home")
+        }
+    }
+
+    companion object {
+        private val entries: List<MainScreen> = listOf(Home, MyPage, PlayGround)
+
+        operator fun contains(route: String?): Boolean {
+            return entries.any { it.route == route }
         }
     }
 }
@@ -45,4 +55,8 @@ sealed class AuthScreen(override val route: String) : Screen {
     data object Auth : AuthScreen("auth")
     data object Login : AuthScreen("login")
     data object SignUp : AuthScreen("signup")
+}
+
+sealed class DetailScreen(override val route: String) : Screen {
+    data object Detail : DetailScreen("detail")
 }
